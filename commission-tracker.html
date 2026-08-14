@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Commission Tracker">
+    <meta name="theme-color" content="#2563eb">
+    <title>Commission Tracker - Zimmer Motor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 6rem;
+        }
+
+        .header {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+
+        .summary-card h2 {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card .big-number {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .summary-breakdown {
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 0.375rem;
+            padding: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .breakdown-row.total {
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .breakdown-row.retention {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            color: #bfdbfe;
+        }
+
+        .breakdown-row.negative {
+            color: #fecaca;
+        }
+
+        .breakdown-row.positive {
+            color: #86efac;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .stat-box {
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .stat-box .label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-box .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .section {
+            background: white;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .section-header:hover {
+            background: #f9fafb;
+        }
+
+        .section-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .section-header .toggle {
+            font-size: 1.25rem;
+        }
+
+        .section-content {
+            padding: 1rem;
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .section-content.hidden {
+            max-height: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .deals-list-wrapper {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:active {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            margin-top: 0.5rem;
+        }
+
+        .btn-secondary:active {
+            background: #4b5563;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-success:active {
+            background: #15803d;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            padding: 0.375rem 0.5rem;
+            width: auto;
+            font-size: 0.875rem;
+        }
+
+        .btn-danger:active {
+            background: #b91c1c;
+        }
+
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+            padding: 0.375rem 0.5rem;
+            width: auto;
+            font-size: 0.875rem;
+        }
+
+        .btn-edit:active {
+            background: #d97706;
+        }
+
+        .btn-export {
+            background: #8b5cf6;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-export:active {
+            background: #7c3aed;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .deal-item {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #2563eb;
+        }
+
+        .deal-item.edit-mode {
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+        }
+
+        .deal-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .deal-item-gross {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .deal-item-gross.negative {
+            color: #dc2626;
+        }
+
+        .deal-item-comm {
+            font-size: 0.875rem;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .deal-item-date {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .deal-item-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .tag-split {
+            background: #e9d5ff;
+            color: #6b21a8;
+        }
+
+        .tag-new {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .tag-used {
+            background: #dbeafe;
+            color: #0c4a6e;
+        }
+
+        .tag-purchase {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .tag-negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tag-mini {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag-spiff {
+            background: #fcd34d;
+            color: #78350f;
+        }
+
+        .deal-item-notes {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .deal-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .deal-buttons button {
+            flex: 1;
+        }
+
+        .draw-item {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #6b7280;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .draw-item-info h4 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .draw-item-info p {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-bar button {
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #9ca3af;
+        }
+
+        .empty-state p {
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 0.75rem;
+            }
+
+            .summary-card .big-number {
+                font-size: 1.875rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.375rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Commission Tracker</h1>
+            <p>Zimmer Motor CDJR • Pay Plan</p>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="summary-card">
+            <h2>Net Commission (Take Home)</h2>
+            <div class="big-number" id="netCommission">$0</div>
+            
+            <div class="summary-breakdown">
+                <div class="breakdown-row" style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 1rem;">
+                    <span>MONTHLY SUMMARY</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Total Month Gross</span>
+                    <span id="summaryTotalGross">$0</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Total Cars (incl. splits as .5)</span>
+                    <span id="summaryCarsTotal">0</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Commission (after draws, before taxes)</span>
+                    <span id="summaryCommissionBeforeTax">$0</span>
+                </div>
+                <div class="breakdown-row total">
+                    <span>Net (after taxes)</span>
+                    <span id="summaryNetAfterTax">$0</span>
+                </div>
+                
+                <div class="breakdown-row" style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 1rem; margin-top: 1rem;">
+                    <span>GROSS COMMISSION BREAKDOWN</span>
+                </div>
+                <div class="breakdown-row" id="tierRow" style="display:none;">
+                    <span>Commission Tier</span>
+                    <span><span id="tierPercent">0</span>%</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Base Deal Commissions</span>
+                    <span>$<span id="baseDealCommission">0</span></span>
+                </div>
+                <div class="breakdown-row" id="bonusRowMini" style="display:none;">
+                    <span>Mini Deal Adjustment</span>
+                    <span class="positive">+$<span id="miniAdjustment">0</span></span>
+                </div>
+                <div class="breakdown-row" id="bonusRowCustom" style="display:none;">
+                    <span>Custom Spiffs</span>
+                    <span class="positive">+$<span id="customCommission">0</span></span>
+                </div>
+                <div class="breakdown-row" id="bonusRowGross" style="display:none;">
+                    <span>Gross Bonus</span>
+                    <span class="positive">+$<span id="grossBonus">0</span></span>
+                </div>
+                <div class="breakdown-row" id="bonusRow5Cars" style="display:none;">
+                    <span>5 New Cars Bonus</span>
+                    <span class="positive">+$<span id="newCarBonus">0</span></span>
+                </div>
+                <div class="breakdown-row" id="bonusRowPurchase" style="display:none;">
+                    <span>Purchase Units Bonus</span>
+                    <span class="positive">+$<span id="purchaseBonus">0</span></span>
+                </div>
+                <div class="breakdown-row total">
+                    <span>Total Draws</span>
+                    <span>-$<span id="totalDraws">0</span></span>
+                </div>
+                <div class="breakdown-row total" style="border-top: none; padding-top: 0; margin-top: 0.25rem; font-size: 1rem;">
+                    <span>GROSS COMMISSION</span>
+                    <span>$<span id="grossCommissionDisplay">0</span></span>
+                </div>
+                
+                <div class="breakdown-row" style="font-size: 0.75rem; opacity: 0.8; margin-top: 1rem; margin-bottom: 0.5rem;">
+                    <span>TAX WITHHOLDING (Est.)</span>
+                </div>
+                <div class="breakdown-row" style="font-size: 0.85rem;">
+                    <span>Social Security (${taxRates.ss}%)</span>
+                    <span class="negative">-$<span id="taxSocialSecurity">0</span></span>
+                </div>
+                <div class="breakdown-row" style="font-size: 0.85rem;">
+                    <span>Medicare (${taxRates.medicare}%)</span>
+                    <span class="negative">-$<span id="taxMedicare">0</span></span>
+                </div>
+                <div class="breakdown-row" style="font-size: 0.85rem;">
+                    <span>KY State (${taxRates.ky}%)</span>
+                    <span class="negative">-$<span id="taxKYState">0</span></span>
+                </div>
+                <div class="breakdown-row" style="font-size: 0.85rem;">
+                    <span>Florence City (${taxRates.florence}%)</span>
+                    <span class="negative">-$<span id="taxFlorence">0</span></span>
+                </div>
+                <div class="breakdown-row" style="font-size: 0.85rem;">
+                    <span>Federal Income (${taxRates.federal}%)</span>
+                    <span class="negative">-$<span id="taxFederal">0</span></span>
+                </div>
+                <div class="breakdown-row total" style="border-top: 1px solid rgba(255,255,255,0.3); font-size: 0.85rem;">
+                    <span>Total Taxes</span>
+                    <span>-$<span id="totalTaxes">0</span></span>
+                </div>
+
+                <div class="breakdown-row retention" id="bonusRowRetention" style="display:none; margin-top: 0.5rem;">
+                    <span>Year End Retention (added in Jan)</span>
+                    <span>+$<span id="retentionBonus">0</span></span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="label">Units</div>
+                    <div class="value" id="totalUnits">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Deals</div>
+                    <div class="value" id="totalDeals">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Gross</div>
+                    <div class="value" id="totalGross">$0k</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculation Breakdown Section -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('breakdown')">
+                <h3>📊 Calculation Breakdown</h3>
+                <span class="toggle" id="breakdownToggle">▼</span>
+            </div>
+            <div class="section-content" id="breakdownContent">
+                <div id="breakdownDisplay" style="background: #f9fafb; padding: 1rem; border-radius: 0.375rem; font-size: 0.85rem; line-height: 1.8; font-family: monospace;">
+                    Loading...
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('deals')">
+                <h3>Deals (<span id="dealCount">0</span>)</h3>
+                <span class="toggle" id="dealToggle">▼</span>
+            </div>
+            <div class="section-content" id="dealsContent">
+                <div class="action-bar">
+                    <button class="btn btn-export" onclick="exportToPDF()">📄 Export Month to PDF</button>
+                    <button class="btn" onclick="freshStartMonth()" style="background-color: #dc2626; margin-left: 0.5rem;">🔄 Fresh Start Month</button>
+                    <button class="btn btn-primary" onclick="toggleAddDeal()">+ Add Deal</button>
+                </div>
+
+                <div id="addDealForm" style="display:none; background:#f9fafb; padding:1rem; border-radius:0.375rem; margin-bottom:1rem;">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="dealDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Gross Profit ($) - Can be negative</label>
+                        <input type="number" id="dealGross" placeholder="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Custom Commission/Spiff ($) - Optional</label>
+                        <input type="number" id="dealSpiff" placeholder="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle Type</label>
+                        <div class="checkbox-group">
+                            <input type="radio" name="vehicleType" value="new" id="typeNew" checked>
+                            <label for="typeNew" style="margin:0;">New Car</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="radio" name="vehicleType" value="used" id="typeUsed">
+                            <label for="typeUsed" style="margin:0;">Used Car</label>
+                        </div>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="dealSplit">
+                        <label for="dealSplit" style="margin:0;">Split Deal (50%)</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="dealPurchase">
+                        <label for="dealPurchase" style="margin:0;">Purchase Unit</label>
+                    </div>
+                    <div class="form-group" id="purchaseQtyGroup" style="display:none;">
+                        <label>Purchase Quantity</label>
+                        <select id="purchaseQty">
+                            <option value="1">1 unit ($200)</option>
+                            <option value="2">2 units ($300)</option>
+                            <option value="3">3+ units ($400)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes (optional)</label>
+                        <input type="text" id="dealNotes" placeholder="Customer name, comments...">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                        <button class="btn btn-success" onclick="addDeal()">Save Deal</button>
+                        <button class="btn btn-secondary" onclick="toggleAddDeal()">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="dealsList"></div>
+            </div>
+        </div>
+
+        <!-- Draws Section -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('draws')">
+                <h3>Draws (<span id="drawCount">0</span>)</h3>
+                <span class="toggle" id="drawToggle">▼</span>
+            </div>
+            <div class="section-content" id="drawsContent">
+                <button class="btn btn-primary" onclick="toggleAddDraw()" style="margin-bottom:1rem;">+ Add Draw</button>
+
+                <div id="addDrawForm" style="display:none; background:#f9fafb; padding:1rem; border-radius:0.375rem; margin-bottom:1rem;">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="drawDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount ($)</label>
+                        <input type="number" id="drawAmount" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Label</label>
+                        <input type="text" id="drawLabel" placeholder="Weekly Draw, Advance, etc.">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                        <button class="btn btn-success" onclick="addDraw()">Save Draw</button>
+                        <button class="btn btn-secondary" onclick="toggleAddDraw()">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="drawsList"></div>
+            </div>
+        </div>
+
+        <!-- Tax Settings Section -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('taxes')">
+                <h3>⚙️ Tax Rates</h3>
+                <span class="toggle" id="taxesToggle">▼</span>
+            </div>
+            <div class="section-content hidden" id="taxesContent">
+                <p style="font-size:0.875rem; opacity:0.7; margin-bottom:1rem;">Adjust these to match your actual withholding</p>
+                <div class="form-group">
+                    <label>Social Security (%)</label>
+                    <input type="number" id="taxSS" step="0.01" value="6.2">
+                </div>
+                <div class="form-group">
+                    <label>Medicare (%)</label>
+                    <input type="number" id="taxMedicare" step="0.01" value="1.45">
+                </div>
+                <div class="form-group">
+                    <label>KY State (%)</label>
+                    <input type="number" id="taxKY" step="0.01" value="3.5">
+                </div>
+                <div class="form-group">
+                    <label>Florence City (%)</label>
+                    <input type="number" id="taxFlorence" step="0.01" value="2.0">
+                </div>
+                <div class="form-group">
+                    <label>Federal Income (%)</label>
+                    <input type="number" id="taxFederal" step="0.01" value="15.85">
+                </div>
+                <button class="btn btn-success" onclick="saveTaxRates()" style="width:100%; margin-top:1rem;">💾 Save Tax Rates</button>
+            </div>
+        </div>
+
+        <div style="height:2rem;"></div>
+    </div>
+
+    <script>
+        // Initialize date to today
+        document.getElementById('dealDate').valueAsDate = new Date();
+        document.getElementById('drawDate').valueAsDate = new Date();
+
+        // Purchase checkbox toggle
+        document.getElementById('dealPurchase').addEventListener('change', (e) => {
+            document.getElementById('purchaseQtyGroup').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        // Data management
+        let deals = JSON.parse(localStorage.getItem('commission_deals') || '[]');
+        let draws = JSON.parse(localStorage.getItem('commission_draws') || '[]');
+        let editingDealId = null;
+        
+        // Load tax rates from localStorage or use defaults
+        let taxRates = JSON.parse(localStorage.getItem('tax_rates') || '{"ss":6.2,"medicare":1.45,"ky":3.5,"florence":2.0,"federal":15.85}');
+        
+        function loadTaxRates() {
+            document.getElementById('taxSS').value = taxRates.ss;
+            document.getElementById('taxMedicare').value = taxRates.medicare;
+            document.getElementById('taxKY').value = taxRates.ky;
+            document.getElementById('taxFlorence').value = taxRates.florence;
+            document.getElementById('taxFederal').value = taxRates.federal;
+        }
+        
+        function saveTaxRates() {
+            taxRates.ss = parseFloat(document.getElementById('taxSS').value);
+            taxRates.medicare = parseFloat(document.getElementById('taxMedicare').value);
+            taxRates.ky = parseFloat(document.getElementById('taxKY').value);
+            taxRates.florence = parseFloat(document.getElementById('taxFlorence').value);
+            taxRates.federal = parseFloat(document.getElementById('taxFederal').value);
+            
+            localStorage.setItem('tax_rates', JSON.stringify(taxRates));
+            render();
+            alert('Tax rates updated!');
+        }
+
+        function saveDealData() {
+            localStorage.setItem('commission_deals', JSON.stringify(deals));
+            render();
+        }
+
+        function saveDrawData() {
+            localStorage.setItem('commission_draws', JSON.stringify(draws));
+            render();
+        }
+
+        function freshStartMonth() {
+            if (confirm('⚠️ This will delete all deals and draws for this month. Tax rate settings will be saved. Are you sure?')) {
+                deals = [];
+                draws = [];
+                saveDealData();
+                saveDrawData();
+                alert('✅ Fresh start! All deals and draws cleared.');
+            }
+        }
+
+        function toggleSection(section) {
+            const content = document.getElementById(section + 'Content');
+            const toggle = document.getElementById(section + 'Toggle');
+            content.classList.toggle('hidden');
+            toggle.textContent = content.classList.contains('hidden') ? '▶' : '▼';
+        }
+
+        function toggleAddDeal() {
+            const form = document.getElementById('addDealForm');
+            if (form.style.display === 'none') {
+                editingDealId = null;
+                document.getElementById('dealDate').valueAsDate = new Date();
+                document.getElementById('dealGross').value = '';
+                document.getElementById('dealSpiff').value = '';
+                document.getElementById('dealNotes').value = '';
+                document.getElementById('dealSplit').checked = false;
+                document.getElementById('dealPurchase').checked = false;
+                document.getElementById('purchaseQtyGroup').style.display = 'none';
+                document.getElementById('typeNew').checked = true;
+            }
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function startEditDeal(id) {
+            const deal = deals.find(d => d.id === id);
+            if (!deal) return;
+
+            editingDealId = id;
+            document.getElementById('dealDate').value = deal.date;
+            document.getElementById('dealGross').value = deal.gross;
+            document.getElementById('dealSpiff').value = deal.spiff || 0;
+            document.getElementById('dealNotes').value = deal.notes;
+            document.getElementById('dealSplit').checked = deal.isSplit;
+            document.getElementById('dealPurchase').checked = deal.isPurchase;
+            document.getElementById('purchaseQtyGroup').style.display = deal.isPurchase ? 'block' : 'none';
+            document.getElementById('purchaseQty').value = deal.purchaseQty;
+            
+            if (deal.vehicleType === 'new') {
+                document.getElementById('typeNew').checked = true;
+            } else {
+                document.getElementById('typeUsed').checked = true;
+            }
+
+            document.getElementById('addDealForm').style.display = 'block';
+            document.getElementById('addDealForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelEditDeal() {
+            editingDealId = null;
+            toggleAddDeal();
+        }
+
+        function toggleAddDraw() {
+            document.getElementById('addDrawForm').style.display = 
+                document.getElementById('addDrawForm').style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addDeal() {
+            const gross = parseFloat(document.getElementById('dealGross').value);
+            if (isNaN(gross)) {
+                alert('Enter gross profit (can be negative)');
+                return;
+            }
+
+            const spiff = parseFloat(document.getElementById('dealSpiff').value) || 0;
+
+            const vehicleType = document.querySelector('input[name="vehicleType"]:checked').value;
+            const deal = {
+                id: editingDealId || Date.now(),
+                date: document.getElementById('dealDate').value,
+                gross: gross,
+                spiff: spiff,
+                vehicleType: vehicleType,
+                isSplit: document.getElementById('dealSplit').checked,
+                isPurchase: document.getElementById('dealPurchase').checked,
+                purchaseQty: document.getElementById('dealPurchase').checked ? 
+                    parseInt(document.getElementById('purchaseQty').value) : 0,
+                notes: document.getElementById('dealNotes').value
+            };
+
+            if (editingDealId) {
+                deals = deals.map(d => d.id === editingDealId ? deal : d);
+                editingDealId = null;
+            } else {
+                deals.push(deal);
+            }
+            
+            deals.sort((a, b) => new Date(b.date) - new Date(a.date));
+            saveDealData();
+            
+            document.getElementById('dealGross').value = '';
+            document.getElementById('dealSpiff').value = '';
+            document.getElementById('dealNotes').value = '';
+            document.getElementById('dealSplit').checked = false;
+            document.getElementById('dealPurchase').checked = false;
+            document.getElementById('purchaseQtyGroup').style.display = 'none';
+            document.getElementById('typeNew').checked = true;
+            toggleAddDeal();
+        }
+
+        function deleteDeal(id) {
+            if (confirm('Delete this deal?')) {
+                deals = deals.filter(d => d.id !== id);
+                saveDealData();
+            }
+        }
+
+        function addDraw() {
+            const amount = parseFloat(document.getElementById('drawAmount').value);
+            if (!amount) {
+                alert('Enter draw amount');
+                return;
+            }
+
+            const draw = {
+                id: Date.now(),
+                date: document.getElementById('drawDate').value,
+                amount: amount,
+                label: document.getElementById('drawLabel').value
+            };
+
+            draws.push(draw);
+            draws.sort((a, b) => new Date(b.date) - new Date(a.date));
+            saveDrawData();
+            
+            document.getElementById('drawAmount').value = '';
+            document.getElementById('drawLabel').value = '';
+            toggleAddDraw();
+        }
+
+        function deleteDraw(id) {
+            if (confirm('Delete this draw?')) {
+                draws = draws.filter(d => d.id !== id);
+                saveDrawData();
+            }
+        }
+
+        function calculateStats() {
+            let totalUnits = 0;
+            let totalGross = 0;
+            let totalGrossPositive = 0;
+            let newCarCount = 0;
+            let purchaseBonus = 0;
+            let customCommission = 0;
+            let dealsUnderMini = 0;
+
+            deals.forEach(deal => {
+                const units = deal.isSplit ? 0.5 : 1;
+                totalUnits += units;
+                totalGross += deal.gross;
+                if (deal.gross > 0) {
+                    totalGrossPositive += deal.gross;
+                }
+                
+                // Count deals that would be under mini threshold (positive OR negative)
+                // Split deals: under $400 = $100 mini | Regular deals: under $200 = $200 mini
+                if (!deal.spiff) {
+                    if (deal.isSplit && Math.abs(deal.gross) < 400) {
+                        dealsUnderMini++; // Will be tracked as split
+                    } else if (!deal.isSplit && Math.abs(deal.gross) < 200) {
+                        dealsUnderMini++; // Will be tracked as regular
+                    }
+                }
+
+                customCommission += deal.spiff || 0;
+
+                if (deal.vehicleType === 'new' && !deal.isSplit) {
+                    newCarCount += 1;
+                }
+
+                if (deal.isPurchase) {
+                    const bonusMap = { 1: 200, 2: 300, 3: 400 };
+                    purchaseBonus += bonusMap[deal.purchaseQty] || 0;
+                }
+            });
+
+            // Calculate tier based on units
+            let tier = 0.13;
+            if (totalUnits > 19) tier = 0.20;
+            else if (totalUnits > 16) tier = 0.18;
+            else if (totalUnits > 12) tier = 0.16;
+            else if (totalUnits > 9) tier = 0.14;
+
+            // Calculate commission with per-deal minimums
+            // Each deal gets: max(gross × tier, minimum)
+            // Regular deals minimum: $200, Split deals minimum: $100
+            // Spiffed deals don't get minimums
+            let baseDealCommission = 0;
+            deals.forEach(deal => {
+                if (deal.spiff > 0) {
+                    // Spiffed deals: tier % + spiff, no minimum
+                    baseDealCommission += deal.gross * tier + deal.spiff;
+                } else {
+                    // Non-spiffed deals: apply per-deal minimum
+                    const tierComm = deal.gross * tier;
+                    const minimum = deal.isSplit ? 100 : 200;
+                    baseDealCommission += Math.max(tierComm, minimum);
+                }
+            });
+            baseDealCommission = Math.round(baseDealCommission * 100) / 100;
+
+            // STACKING GROSS BONUSES - based on positive gross only
+            let grossBonus = 0;
+            if (totalGrossPositive >= 20000) grossBonus += 250;
+            if (totalGrossPositive >= 25000) grossBonus += 250;
+            if (totalGrossPositive >= 30000) grossBonus += 250;
+            if (totalGrossPositive >= 35000) grossBonus += 250;
+            if (totalGrossPositive >= 40000) grossBonus += 500;
+
+            const newCarBonus = newCarCount >= 5 ? 500 : 0;
+            const retentionBonus = deals.length * 5;
+
+            // Net commission (after draws, NOT including year end retention)
+            const totalComm = baseDealCommission + customCommission + purchaseBonus + grossBonus + newCarBonus;
+            const totalDrawAmount = draws.reduce((sum, d) => sum + d.amount, 0);
+            const netComm = totalComm - totalDrawAmount;
+
+            return {
+                totalUnits: Math.round(totalUnits * 2) / 2,
+                totalGross,
+                totalGrossPositive,
+                tier: Math.round(tier * 100),
+                baseDealCommission,
+                customCommission: Math.round(customCommission * 100) / 100,
+                grossBonus,
+                newCarBonus,
+                newCarCount,
+                purchaseBonus,
+                retentionBonus,
+                dealsUnderMini,
+                totalComm: Math.round(totalComm * 100) / 100,  // BEFORE DRAWS
+                totalDrawAmount: Math.round(totalDrawAmount * 100) / 100,
+                netComm: Math.round(netComm * 100) / 100,  // AFTER DRAWS (before taxes)
+                totalGrossPositiveDisplay: totalGrossPositive
+            };
+        }
+
+        function getDealCommission(deal, tier) {
+            // Per-deal commission with minimums
+            // Spiffed deals: tier % + spiff, no minimum
+            // Regular deals: tier % or $200 minimum
+            // Split deals: tier % or $100 minimum
+            
+            if (deal.spiff > 0) {
+                return Math.round((deal.gross * tier + deal.spiff) * 100) / 100;
+            } else {
+                const tierComm = deal.gross * tier;
+                const minimum = deal.isSplit ? 100 : 200;
+                return Math.round(Math.max(tierComm, minimum) * 100) / 100;
+            }
+        }
+
+        function render() {
+            const stats = calculateStats();
+            const tier = (stats.tier / 100);
+
+            // Calculate taxes using custom tax rates
+            const taxSocialSecurity = stats.netComm * (taxRates.ss / 100);
+            const taxMedicare = stats.netComm * (taxRates.medicare / 100);
+            const taxKYState = stats.netComm * (taxRates.ky / 100);
+            const taxFlorence = stats.netComm * (taxRates.florence / 100);
+            const taxFederal = stats.netComm * (taxRates.federal / 100);
+            const totalTaxes = taxSocialSecurity + taxMedicare + taxKYState + taxFlorence + taxFederal;
+            
+            // Final net after taxes
+            const netAfterTaxes = stats.netComm - totalTaxes;
+
+            // Update summary
+            document.getElementById('netCommission').textContent = '$' + Math.round(netAfterTaxes * 100) / 100;
+            
+            // New summary metrics
+            document.getElementById('summaryTotalGross').textContent = '$' + (stats.totalGross / 1000).toFixed(1) + 'k';
+            document.getElementById('summaryCarsTotal').textContent = stats.totalUnits + ' cars';
+            document.getElementById('summaryCommissionBeforeTax').textContent = '$' + Math.round(stats.netComm * 100) / 100;  // After bonuses and draws, before taxes
+            document.getElementById('summaryNetAfterTax').textContent = '$' + Math.round(netAfterTaxes * 100) / 100;
+            
+            document.getElementById('baseDealCommission').textContent = stats.baseDealCommission.toLocaleString();
+            document.getElementById('grossCommissionDisplay').textContent = stats.totalComm.toLocaleString();  // Gross BEFORE draws
+            
+            document.getElementById('taxSocialSecurity').textContent = Math.round(taxSocialSecurity * 100) / 100;
+            document.getElementById('taxMedicare').textContent = Math.round(taxMedicare * 100) / 100;
+            document.getElementById('taxKYState').textContent = Math.round(taxKYState * 100) / 100;
+            document.getElementById('taxFlorence').textContent = Math.round(taxFlorence * 100) / 100;
+            document.getElementById('taxFederal').textContent = Math.round(taxFederal * 100) / 100;
+            document.getElementById('totalTaxes').textContent = Math.round(totalTaxes * 100) / 100;
+            
+            document.getElementById('totalUnits').textContent = stats.totalUnits;
+            document.getElementById('totalDeals').textContent = deals.length;
+            document.getElementById('totalGross').textContent = '$' + (stats.totalGross / 1000).toFixed(1) + 'k';
+            document.getElementById('dealCount').textContent = deals.length;
+            document.getElementById('drawCount').textContent = draws.length;
+            document.getElementById('totalDraws').textContent = stats.totalDrawAmount.toLocaleString();
+
+            // Generate calculation breakdown
+            const breakdownText = `
+<strong>STEP-BY-STEP CALCULATION:</strong>
+
+<strong>1. TOTAL POSITIVE GROSS:</strong>
+   $${stats.totalGrossPositiveDisplay.toLocaleString()}
+
+<strong>2. BASE COMMISSION (with per-deal minimums):</strong>
+   Each regular deal: max(gross × ${stats.tier}%, $200)
+   Each split deal: max(gross × ${stats.tier}%, $100)
+   Spiffed deals: gross × ${stats.tier}% + spiff (no minimum)
+   Total Base Commission: $${stats.baseDealCommission.toLocaleString()}
+
+<strong>3. BONUSES:</strong>
+   Gross Bonus (at $20k, $25k, $30k, $35k, $40k+): +$${stats.grossBonus.toLocaleString()}
+   5 New Cars Bonus: +$${stats.newCarBonus.toLocaleString()}
+   Purchase Units Bonus: +$${stats.purchaseBonus.toLocaleString()}
+
+<strong>4. CUSTOM SPIFFS:</strong>
+   Custom Spiffs: +$${stats.customCommission.toLocaleString()}
+
+<strong>5. SUBTOTAL BEFORE DRAWS:</strong>
+   $${stats.baseDealCommission.toLocaleString()} + $${stats.grossBonus} + $${stats.newCarBonus} + $${stats.purchaseBonus} + $${stats.customCommission.toLocaleString()} = $${(stats.baseDealCommission + stats.grossBonus + stats.newCarBonus + stats.purchaseBonus + stats.customCommission).toLocaleString()}
+
+<strong>6. SUBTRACT DRAWS:</strong>
+   $${(stats.baseDealCommission + stats.grossBonus + stats.newCarBonus + stats.purchaseBonus + stats.customCommission).toLocaleString()} - $${stats.totalDrawAmount.toLocaleString()} = $${stats.netComm.toLocaleString()}
+
+<strong>7. COMMISSION AFTER DRAWS (Before Taxes):</strong>
+   $${stats.netComm.toLocaleString()}
+
+<strong>8. TAX CALCULATION (on $${stats.netComm.toLocaleString()}):</strong>
+   Social Security (${taxRates.ss}%): $${stats.netComm.toLocaleString()} × ${(taxRates.ss/100).toFixed(3)} = -$${Math.round(taxSocialSecurity * 100) / 100}
+   Medicare (${taxRates.medicare}%): $${stats.netComm.toLocaleString()} × ${(taxRates.medicare/100).toFixed(4)} = -$${Math.round(taxMedicare * 100) / 100}
+   KY State (${taxRates.ky}%): $${stats.netComm.toLocaleString()} × ${(taxRates.ky/100).toFixed(3)} = -$${Math.round(taxKYState * 100) / 100}
+   Florence City (${taxRates.florence}%): $${stats.netComm.toLocaleString()} × ${(taxRates.florence/100).toFixed(3)} = -$${Math.round(taxFlorence * 100) / 100}
+   Federal Income (${taxRates.federal}%): $${stats.netComm.toLocaleString()} × ${(taxRates.federal/100).toFixed(4)} = -$${Math.round(taxFederal * 100) / 100}
+   
+   Total Taxes: -$${Math.round(totalTaxes * 100) / 100}
+
+<strong>9. FINAL NET COMMISSION (Take Home):</strong>
+   $${stats.netComm.toLocaleString()} - $${Math.round(totalTaxes * 100) / 100} = $${Math.round(netAfterTaxes * 100) / 100}
+            `;
+            document.getElementById('breakdownDisplay').innerHTML = breakdownText;
+            document.getElementById('tierRow').style.display = 'flex';
+            document.getElementById('tierPercent').textContent = stats.tier;
+
+            // Hide mini adjustment row since it's now per-deal minimum
+            document.getElementById('bonusRowMini').style.display = 'none';
+
+            // Show/hide bonus rows
+            document.getElementById('bonusRowCustom').style.display = stats.customCommission > 0 ? 'flex' : 'none';
+            document.getElementById('customCommission').textContent = stats.customCommission.toLocaleString();
+
+            document.getElementById('bonusRowGross').style.display = stats.grossBonus > 0 ? 'flex' : 'none';
+            document.getElementById('grossBonus').textContent = stats.grossBonus.toLocaleString();
+
+            document.getElementById('bonusRow5Cars').style.display = stats.newCarBonus > 0 ? 'flex' : 'none';
+            document.getElementById('newCarBonus').textContent = stats.newCarBonus;
+
+            document.getElementById('bonusRowPurchase').style.display = stats.purchaseBonus > 0 ? 'flex' : 'none';
+            document.getElementById('purchaseBonus').textContent = stats.purchaseBonus;
+
+            document.getElementById('bonusRowRetention').style.display = stats.retentionBonus > 0 ? 'flex' : 'none';
+            document.getElementById('retentionBonus').textContent = stats.retentionBonus;
+
+            // Render deals
+            const dealsList = document.getElementById('dealsList');
+            if (deals.length === 0) {
+                dealsList.innerHTML = '<div class="empty-state"><p>No deals logged yet</p></div>';
+            } else {
+                dealsList.innerHTML = '<div class="deals-list-wrapper">' + deals.map(deal => {
+                    let commDisplay = '';
+                    if (deal.gross >= 0) {
+                        // For $0 and positive: show tier commission
+                        const dealComm = getDealCommission(deal, tier);
+                        if (dealComm !== 0 || deal.gross === 0) {
+                            commDisplay = `<div class="deal-item-comm">At Tier: $${dealComm.toLocaleString()}</div>`;
+                        }
+                    }
+                    
+                    // Check for mini on any deal (positive, zero, or negative) without spiff
+                    if (!deal.spiff) {
+                        const miniAmount = deal.isSplit && Math.abs(deal.gross) < 400 ? 100 : (Math.abs(deal.gross) < 200 ? 200 : 0);
+                        if (miniAmount > 0) {
+                            commDisplay = `<div class="deal-item-comm">Mini: +$${miniAmount}</div>`;
+                        }
+                    }
+                    
+                    return `
+                        <div class="deal-item">
+                            <div class="deal-item-header">
+                                <div>
+                                    <div class="deal-item-gross ${deal.gross < 0 ? 'negative' : ''}">$${deal.gross.toLocaleString()}</div>
+                                    ${commDisplay}
+                                    <div class="deal-item-date">${deal.date}</div>
+                                </div>
+                                <button class="btn-danger" onclick="deleteDeal(${deal.id})">✕</button>
+                            </div>
+                            <div class="deal-item-tags">
+                                ${deal.vehicleType === 'new' ? '<span class="tag tag-new">New</span>' : '<span class="tag tag-used">Used</span>'}
+                                ${deal.isSplit ? '<span class="tag tag-split">Split</span>' : ''}
+                                ${deal.gross < 0 ? '<span class="tag tag-negative">Negative</span>' : ''}
+                                ${deal.spiff > 0 ? `<span class="tag tag-spiff">Spiff +$${deal.spiff.toLocaleString()}</span>` : ''}
+                                ${deal.isPurchase ? `<span class="tag tag-purchase">Purchase (+$${[200,300,400][deal.purchaseQty-1]})</span>` : ''}
+                            </div>
+                            ${deal.notes ? `<div class="deal-item-notes">${deal.notes}</div>` : ''}
+                            <div class="deal-buttons">
+                                <button class="btn btn-edit" onclick="startEditDeal(${deal.id})">Edit</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('') + '</div>';
+            }
+
+            // Render draws
+            const drawsList = document.getElementById('drawsList');
+            if (draws.length === 0) {
+                drawsList.innerHTML = '<div class="empty-state"><p>No draws recorded yet</p></div>';
+            } else {
+                drawsList.innerHTML = draws.map(draw => `
+                    <div class="draw-item">
+                        <div class="draw-item-info">
+                            <h4>-$${draw.amount.toLocaleString()}</h4>
+                            <p>${draw.label || draw.date}</p>
+                        </div>
+                        <button class="btn-danger" onclick="deleteDraw(${draw.id})">✕</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function exportToPDF() {
+            const stats = calculateStats();
+            const now = new Date();
+            const monthYear = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            let html = `
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { color: #2563eb; }
+                        h2 { color: #1f2937; border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin-top: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+                        th { background-color: #2563eb; color: white; }
+                        .summary { background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 15px 0; }
+                        .summary-row { display: flex; justify-content: space-between; margin: 8px 0; font-size: 16px; }
+                        .summary-row.total { font-weight: bold; font-size: 18px; margin-top: 15px; border-top: 2px solid #2563eb; padding-top: 10px; }
+                        .negative { color: #dc2626; }
+                        .mini { background-color: #fef3c7; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Commission Report - ${monthYear}</h1>
+                    <p>Zimmer Motor CDJR | Generated: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}</p>
+
+                    <div class="summary">
+                        <div class="summary-row" style="font-weight: bold; color: #2563eb;">GROSS COMMISSION BREAKDOWN</div>
+                        <div class="summary-row">
+                            <span>Positive Gross: $${stats.totalGrossPositiveDisplay.toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Base Commission (with per-deal minimums)</span>
+                            <span>$${stats.baseDealCommission.toLocaleString()}</span>
+                        </div>
+                        ${stats.customCommission > 0 ? `<div class="summary-row"><span>Custom Spiffs</span><span>+$${stats.customCommission.toLocaleString()}</span></div>` : ''}
+                        ${stats.grossBonus > 0 ? `<div class="summary-row"><span>Gross Bonus</span><span>+$${stats.grossBonus.toLocaleString()}</span></div>` : ''}
+                        ${stats.newCarBonus > 0 ? `<div class="summary-row"><span>5 New Cars Bonus</span><span>+$${stats.newCarBonus}</span></div>` : ''}
+                        ${stats.purchaseBonus > 0 ? `<div class="summary-row"><span>Purchase Units Bonus</span><span>+$${stats.purchaseBonus}</span></div>` : ''}
+                        <div class="summary-row"><span>Total Draws</span><span>-$${stats.totalDrawAmount.toLocaleString()}</span></div>
+                        <div class="summary-row total">
+                            <span>GROSS COMMISSION</span>
+                            <span>$${(Math.round(stats.totalComm * 100) / 100).toLocaleString()}</span>
+                        </div>
+
+                        <div class="summary-row" style="font-weight: bold; color: #2563eb; margin-top: 15px;">TAX WITHHOLDING (Estimated)</div>
+                        <div class="summary-row">
+                            <span>Social Security (${taxRates.ss}%)</span>
+                            <span>-$${(Math.round(stats.totalComm * (taxRates.ss/100) * 100) / 100).toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Medicare (${taxRates.medicare}%)</span>
+                            <span>-$${(Math.round(stats.totalComm * (taxRates.medicare/100) * 100) / 100).toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>KY State (${taxRates.ky}%)</span>
+                            <span>-$${(Math.round(stats.totalComm * (taxRates.ky/100) * 100) / 100).toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Florence City (${taxRates.florence}%)</span>
+                            <span>-$${(Math.round(stats.totalComm * (taxRates.florence/100) * 100) / 100).toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Federal Income (${taxRates.federal}%)</span>
+                            <span>-$${(Math.round(stats.totalComm * (taxRates.federal/100) * 100) / 100).toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total Taxes</span>
+                            <span>-$${(Math.round(stats.totalComm * ((taxRates.ss + taxRates.medicare + taxRates.ky + taxRates.florence + taxRates.federal)/100) * 100) / 100).toLocaleString()}</span>
+                        </div>
+
+                        <div class="summary-row total" style="color: #16a34a;">
+                            <span>NET COMMISSION (Take Home)</span>
+                            <strong>$${(Math.round((stats.totalComm - stats.totalComm * ((taxRates.ss + taxRates.medicare + taxRates.ky + taxRates.florence + taxRates.federal)/100)) * 100) / 100).toLocaleString()}</strong>
+                        </div>
+                        
+                        ${stats.retentionBonus > 0 ? `<div class="summary-row" style="margin-top: 15px;"><span>Year End Retention (added in Jan)</span><span>+$${stats.retentionBonus}</span></div>` : ''}
+                    </div>
+
+                    <h2>Deals (${deals.length})</h2>
+                    <table>
+                        <tr>
+                            <th>Date</th>
+                            <th>Gross</th>
+                            <th>Type</th>
+                            <th>Spiff</th>
+                            <th>Notes</th>
+                        </tr>
+                        ${deals.map(deal => {
+                            return `
+                                <tr>
+                                    <td>${deal.date}</td>
+                                    <td ${deal.gross < 0 ? 'style="color: #dc2626;"' : ''}>$${deal.gross.toLocaleString()}</td>
+                                    <td>${deal.vehicleType === 'new' ? 'New' : 'Used'}</td>
+                                    <td>${deal.spiff > 0 ? '$' + deal.spiff.toLocaleString() : '-'}</td>
+                                    <td>${deal.notes || '-'}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </table>
+
+                    <h2>Draws (${draws.length})</h2>
+                    <table>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Label</th>
+                        </tr>
+                        ${draws.map(draw => `
+                            <tr>
+                                <td>${draw.date}</td>
+                                <td>$${draw.amount.toLocaleString()}</td>
+                                <td>${draw.label || '-'}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                </body>
+                </html>
+            `;
+
+            // Use html2pdf to convert to PDF
+            const element = document.createElement('div');
+            element.innerHTML = html;
+            const opt = {
+                margin: 10,
+                filename: `Commission-Report-${monthYear.replace(/\s/g, '-')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'letter' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Load settings on page load
+        loadTaxRates();
+        render();
+    </script>
+</body>
+</html>
