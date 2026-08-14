@@ -1042,14 +1042,20 @@
 
         function getDealCommission(deal, tier) {
             // Per-deal commission with minimums
-            // Spiffed deals: tier % + spiff, no minimum
-            // Regular deals: tier % or $200 minimum
-            // Split deals: tier % or $100 minimum
             
             if (deal.spiff > 0) {
-                return Math.round((deal.gross * tier + deal.spiff) * 100) / 100;
+                // Spiffed deals: tier % (split if applicable) + spiff, no minimum
+                let tierComm = deal.gross * tier;
+                if (deal.isSplit) {
+                    tierComm = tierComm / 2;
+                }
+                return Math.round((tierComm + deal.spiff) * 100) / 100;
             } else {
-                const tierComm = deal.gross * tier;
+                // Non-spiffed deals: tier % (split if applicable) with minimum
+                let tierComm = deal.gross * tier;
+                if (deal.isSplit) {
+                    tierComm = tierComm / 2;  // Split the commission amount
+                }
                 const minimum = deal.isSplit ? 100 : 200;
                 return Math.round(Math.max(tierComm, minimum) * 100) / 100;
             }
